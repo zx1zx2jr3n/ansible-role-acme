@@ -64,11 +64,16 @@ None.
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+      - role: zx1zx2jr3n.acme
+        vars:
+        cloudflare_email: 'account'
+        cloudflare_api_token: 'api_token'
+        acme_remaining_days: 30
+        acme_dns_data:
+          - { "zone": "example.com", "subjectAltName": ["example.com","*.example.com"] }
+
 
 License
 -------
