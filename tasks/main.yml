@@ -1,0 +1,22 @@
+---
+# tasks file for acme
+
+- name: Include ACME api variable for {{ acme_third_party }} {{ acme_enviroment }}
+  include_vars: "{{ acme_third_party }}-{{ acme_enviroment }}.yml"
+  tags:
+    - always
+
+- name: Generate account key
+  include_tasks: account-key.yml
+  tags:
+    - always
+
+- name: Include cloudflare tasks
+  include_tasks: cloudflare.yml
+  when: 
+    - dns_third_party == "cloudflare"
+    - cloudflare_email is defined
+    - cloudflare_api_token is defined
+  loop: "{{ acme_dns_data }}"
+  loop_control:
+    loop_var: dns_data

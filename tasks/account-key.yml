@@ -1,0 +1,13 @@
+---
+# Task for generating account key
+
+- name: Create directory to store account key
+  file:
+    path: "{{ acme_account_key_path }}"
+    state: directory
+
+- name: Generate account key
+  openssl_privatekey:
+    path: "{{ acme_account_key_path }}/account-key.key"
+    size: 4096
+    force: "{{ acme_account_key_regen }}"

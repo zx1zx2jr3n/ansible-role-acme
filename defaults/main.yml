@@ -1,0 +1,18 @@
+---
+# defaults file for acme
+
+acme_account_key_path: '/data/ansible-acme'
+acme_account_key_regen: no
+
+acme_certs_path: '/data/ansible-acme/certs'
+acme_third_party: letsencrypt
+acme_enviroment: production
+acme_version: 2
+acme_challenge: dns-01
+acme_remaining_days: 60
+debug_log: False
+
+dns_third_party: cloudflare
+
+acme_dns_data:
+  - { "zone": "", "subjectAltName": [""] }

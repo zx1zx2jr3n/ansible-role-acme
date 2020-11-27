@@ -1,0 +1,21 @@
+---
+
+- name: Validate acme challenge for {{ dns_data.zone }}
+  acme_certificate:
+    account_key_src: "{{ acme_account_key_path }}/account-key.key"
+    src: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.csr"
+    cert: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.crt"
+    fullchain: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}-fullchain.crt"
+    chain: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}-intermediate.crt"
+    challenge: "{{ acme_challenge }}"
+    acme_version: "{{ acme_version }}"
+    terms_agreed: yes
+    acme_directory: "{{ acme_uri }}"
+    remaining_days: "{{ acme_remaining_days }}"
+    data: "{{ challenge }}"
+  register: confirm_chg
+  when: challenge.changed == True
+
+- debug:
+    msg: "{{ confirm_chg }}"
+  when: challenge.changed == True and debug_log == True

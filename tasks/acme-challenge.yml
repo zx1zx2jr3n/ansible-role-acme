@@ -1,0 +1,39 @@
+---
+
+- name: Create directory to store certs
+  file:
+    path: "{{ acme_certs_path }}/{{ dns_data.zone }}"
+    state: directory
+
+- name: Generate {{ dns_data.zone }} private key
+  openssl_privatekey:
+    path: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.key"
+    size: 4096
+
+- name: Generate {{ dns_data.zone }} csr
+  openssl_csr:
+    path: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.csr"
+    privatekey_path: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.key"
+    common_name: "{{ dns_data.zone }}"
+    subject_alt_name: "{{ dns_data.subjectAltName | map('regex_replace', '^', 'DNS:') | list }}"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+
+- name: Create a challenge for {{ dns_data.zone }} using a account key file.
+  acme_certificate:
+    account_key_src: "{{ acme_account_key_path }}/account-key.key"
+    src: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.csr"
+    cert: "{{ acme_certs_path }}/{{ dns_data.zone }}/{{ dns_data.zone }}.crt"
+    challenge: "{{ acme_challenge }}"
+    acme_version: "{{ acme_version }}"
+    terms_agreed: yes
+    acme_directory: "{{ acme_uri }}"
+    # Renew if the certificate is at least 30 days old
+    remaining_days: "{{ acme_remaining_days }}"
+  register: challenge
+
+- debug:
+    msg: "{{ challenge }}"
+  when: debug_log == True

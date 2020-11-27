@@ -1,0 +1,30 @@
+---
+- name: Include acme challenge tasks
+  include_tasks: acme-challenge.yml
+
+- name: Create cloudflare TXT records
+  cloudflare_dns:
+    account_api_token: "{{ cloudflare_api_token }}"
+    account_email: "{{ cloudflare_email }}"
+    zone: "{{ challenge.authorizations[item.key].identifier.value }}"
+    record: "{{ challenge.challenge_data[item.key]['dns-01'].record }}"
+    type: TXT
+    value: "{{ challenge.challenge_data[item.key]['dns-01'].resource_value }}"
+    state: present
+  loop: "{{ challenge.challenge_data | dict2items }}"
+  when: challenge.changed == True
+
+- name: Include acme validate tasks
+  include_tasks: acme-validate.yml
+
+- name: Delete cloudflare TXT records
+  cloudflare_dns:
+    account_api_token: "{{ cloudflare_api_token }}"
+    account_email: "{{ cloudflare_email }}"
+    zone: "{{ challenge.authorizations[item.key].identifier.value }}"
+    record: "{{ challenge.challenge_data[item.key]['dns-01'].record }}"
+    type: TXT
+    value: "{{ challenge.challenge_data[item.key]['dns-01'].resource_value }}"
+    state: absent
+  loop: "{{ challenge.challenge_data | dict2items }}"
+  when: challenge.changed == True
